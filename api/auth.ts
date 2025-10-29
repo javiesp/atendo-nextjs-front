@@ -1,47 +1,48 @@
-import dotenv from "dotenv";
-dotenv.config();
+import dotenv from "dotenv"
+dotenv.config()
 
 const API_BASE_URL: string =
   process.env.NEXT_PUBLIC_API_ATENDO && process.env.NEXT_PUBLIC_API_ATENDO !== ""
     ? process.env.NEXT_PUBLIC_API_ATENDO
-    : "http://localhost:3004";
+    : "http://localhost:3004"
 
 export interface RegisterData {
-  org_id: string;
-  name: string;
-  email: string;
-  password: string;
+  org_id: string
+  name: string
+  email: string
+  password: string
 }
 
 export interface LoginData {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 export interface AuthResponse {
-  idToken: string;
-  refreshToken: string;
-  expiresIn: string;
+  idToken: string
+  refreshToken: string
+  expiresIn: string
+  org_id: string
 }
 
 export interface RegisterResponse {
-  uid: string;
-  email: string;
-  emailVerified: boolean;
-  displayName: string;
-  disabled: boolean;
+  uid: string
+  email: string
+  emailVerified: boolean
+  displayName: string
+  disabled: boolean
   metadata: {
-    lastSignInTime: string | null;
-    creationTime: string;
-    lastRefreshTime: string | null;
-  };
-  tokensValidAfterTime: string;
+    lastSignInTime: string | null
+    creationTime: string
+    lastRefreshTime: string | null
+  }
+  tokensValidAfterTime: string
   providerData: Array<{
-    uid?: string;
-    displayName?: string;
-    email?: string;
-    providerId?: string;
-  }>;
+    uid?: string
+    displayName?: string
+    email?: string
+    providerId?: string
+  }>
 }
 
 class AuthAPI {
@@ -55,14 +56,14 @@ class AuthAPI {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-    });
+    })
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Registration failed" }));
-      throw new Error(error.message || "Registration failed");
+      const error = await response.json().catch(() => ({ message: "Registration failed" }))
+      throw new Error(error.message || "Registration failed")
     }
 
-    return response.json();
+    return response.json()
   }
 
   /**
@@ -75,29 +76,29 @@ class AuthAPI {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
-    });
-  
+    })
+
     // 🔍 Debug info para saber qué pasa realmente
-    console.log("[AuthAPI] status:", response.status);
-    console.log("[AuthAPI] headers:", response.headers.get("content-type"));
-  
-    const raw = await response.text(); // <-- lee texto crudo
-    console.log("[AuthAPI] raw:", raw);
-  
+    console.log("[AuthAPI] status:", response.status)
+    console.log("[AuthAPI] headers:", response.headers.get("content-type"))
+
+    const raw = await response.text() // <-- lee texto crudo
+    console.log("[AuthAPI] raw:", raw)
+
     // Si fue 2xx, procesamos
     if (response.status >= 200 && response.status < 300) {
       try {
         // Si hay contenido, parseamos a JSON
-        return raw ? JSON.parse(raw) : ({} as AuthResponse);
+        return raw ? JSON.parse(raw) : ({} as AuthResponse)
       } catch (err) {
-        console.error("[AuthAPI] JSON parse error:", err);
-        throw new Error("Invalid JSON in response from backend");
+        console.error("[AuthAPI] JSON parse error:", err)
+        throw new Error("Invalid JSON in response from backend")
       }
     }
-  
+
     // Si no fue 2xx, devolvemos error legible
-    throw new Error(`HTTP ${response.status}: ${raw || "Unexpected error"}`);
-  }  
+    throw new Error(`HTTP ${response.status}: ${raw || "Unexpected error"}`)
+  }
 
   /**
    * Refresh authentication token
@@ -107,14 +108,14 @@ class AuthAPI {
       `${API_BASE_URL}/user/auth/refresh-token?refreshToken=${encodeURIComponent(refreshToken)}`,
       {
         method: "POST",
-      }
-    );
+      },
+    )
 
     if (!response.ok) {
-      throw new Error("Failed to refresh token");
+      throw new Error("Failed to refresh token")
     }
 
-    return response.json();
+    return response.json()
   }
 
   /**
@@ -126,14 +127,14 @@ class AuthAPI {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    });
+    })
 
     if (!response.ok) {
-      throw new Error("Failed to fetch users");
+      throw new Error("Failed to fetch users")
     }
 
-    return response.json();
+    return response.json()
   }
 }
 
-export const authAPI: AuthAPI = new AuthAPI();
+export const authAPI: AuthAPI = new AuthAPI()

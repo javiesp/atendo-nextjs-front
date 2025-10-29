@@ -3,20 +3,28 @@ import { authAPI, type AuthResponse } from "@/api/auth"
 const TOKEN_KEY = "atendo_token"
 const REFRESH_TOKEN_KEY = "atendo_refresh_token"
 const TOKEN_EXPIRY_KEY = "atendo_token_expiry"
+const ORG_ID_KEY = "atendo_org_id"
 
 export class AuthManager {
   /**
    * Save authentication tokens to localStorage
    */
-  static saveTokens({ idToken, refreshToken, expiresIn }: AuthResponse) {
-    localStorage.setItem("idToken", idToken);
-    localStorage.setItem("refreshToken", refreshToken);
-  
+  static saveTokens({ idToken, refreshToken, expiresIn, org_id }: AuthResponse) {
+    localStorage.setItem(TOKEN_KEY, idToken)
+    localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
+
+    // Calculate expiry time
+    const expiryTime = Date.now() + Number.parseInt(expiresIn, 10) * 1000
+    localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString())
+
+    if (org_id) {
+      localStorage.setItem(ORG_ID_KEY, org_id)
+    }
+
     // Guardar cookie para el middleware
-    const maxAge = parseInt(expiresIn, 10); // expiresIn viene en segundos
-    document.cookie = `atendo_token=${idToken}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+    const maxAge = Number.parseInt(expiresIn, 10) // expiresIn viene en segundos
+    document.cookie = `atendo_token=${idToken}; Path=/; Max-Age=${maxAge}; SameSite=Lax`
   }
-  
 
   /**
    * Get the current access token
@@ -32,6 +40,14 @@ export class AuthManager {
   static getRefreshToken(): string | null {
     if (typeof window === "undefined") return null
     return localStorage.getItem(REFRESH_TOKEN_KEY)
+  }
+
+  /**
+   * Get the stored org_id
+   */
+  static getOrgId(): string | null {
+    if (typeof window === "undefined") return null
+    return localStorage.getItem(ORG_ID_KEY)
   }
 
   /**
@@ -67,7 +83,7 @@ export class AuthManager {
       this.saveTokens(response)
       return true
     } catch (error) {
-      console.error("[v0] Failed to refresh token:", error)
+      console.error("Failed to refresh token:", error)
       this.clearTokens()
       return false
     }
@@ -82,6 +98,9 @@ export class AuthManager {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(REFRESH_TOKEN_KEY)
     localStorage.removeItem(TOKEN_EXPIRY_KEY)
+    localStorage.removeItem(ORG_ID_KEY)
+
+    document.cookie = "atendo_token=; Path=/; Max-Age=0"
   }
 
   /**

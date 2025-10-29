@@ -30,27 +30,35 @@ export function useAuth() {
 
   const login = async (data: LoginData) => {
     try {
-      const response = await authAPI.login(data);
-      AuthManager.saveTokens(response);
-      setIsAuthenticated(true);
-  
-      // Esperamos un tick del event loop para que React actualice estado
-      setTimeout(() => {
-        router.replace("/");
-        // fuerza recarga completa para limpiar el estado previo
-        window.location.href = "/";
-      }, 100);
-  
-      return { success: true };
+      const response = await authAPI.login(data)
+      AuthManager.saveTokens(response)
+      setIsAuthenticated(true)
+
+      const orgId = response.org_id || AuthManager.getOrgId()
+
+      if (orgId) {
+        setTimeout(() => {
+          router.replace(`/${orgId}`)
+          window.location.href = `/${orgId}`
+        }, 100)
+      } else {
+        console.error("[v0] No org_id found in response")
+        return {
+          success: false,
+          error: "Organization ID not found",
+        }
+      }
+
+      return { success: true }
     } catch (error) {
-      console.error("[v0] Login error:", error);
+      console.error("[v0] Login error:", error)
       return {
         success: false,
         error: error instanceof Error ? error.message : "Login failed",
-      };
+      }
     }
-  };
-  
+  }
+
   const register = async (data: RegisterData) => {
     try {
       await authAPI.register(data)
@@ -61,7 +69,15 @@ export function useAuth() {
       })
       AuthManager.saveTokens(loginResponse)
       setIsAuthenticated(true)
-      router.push("/")
+
+      const orgId = loginResponse.org_id || AuthManager.getOrgId()
+
+      if (orgId) {
+        router.push(`/${orgId}`)
+      } else {
+        router.push("/")
+      }
+
       return { success: true }
     } catch (error) {
       console.error("[v0] Registration error:", error)
