@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { AuthManager } from "@/lib/auth"
 import { tenantAPI, type Tenant } from "@/api/tenant"
@@ -31,7 +29,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
   useEffect(() => {
     const fetchTenant = async () => {
       const token = AuthManager.getToken()
-      const orgId = params.tenantId as string
+      const orgId = params.tenant as string
 
       if (!token || !orgId) {
         setIsLoading(false)
@@ -49,7 +47,7 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
     }
 
     fetchTenant()
-  }, [params.tenantId])
+  }, [params.tenant])
 
   const handleLogout = () => {
     AuthManager.logout()
@@ -57,11 +55,11 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
   }
 
   const handleUserProfile = () => {
-    router.push(`/${params.tenantId}/profile`)
+    router.push(`/${params.tenant}/profile`)
   }
 
   const handleOrgProfile = () => {
-    router.push(`/${params.tenantId}/organization`)
+    router.push(`/${params.tenant}/organization`)
   }
 
   return (
@@ -72,10 +70,10 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
         </Button>
 
         <div className="flex items-center gap-2">
-            <div>
-                <h1>Atendo</h1>
-            </div>
-          {/* <Link href={`/${params.tenantId}`} className="flex items-center gap-2">
+          <div>
+            <h1>Atendo</h1>
+          </div>
+          {/* <Link href={`/${params.tenant}`} className="flex items-center gap-2">
             <Image
               src="/logos/logo-black.webp"
               alt="Atendo"

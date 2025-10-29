@@ -24,7 +24,7 @@ interface AppSidebarProps {
 function SidebarContent({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
   const params = useParams()
   const pathname = usePathname()
-  const tenantId = params.tenantId as string
+  const tenantId = params.tenant as string
 
   return (
     <div className="flex h-full flex-col">

@@ -18,7 +18,7 @@ export default function OrganizationPage() {
   useEffect(() => {
     const fetchTenant = async () => {
       const token = AuthManager.getToken()
-      const tenantId = params.tenantId as string
+      const tenantId = params.tenant as string
 
       if (!token || !tenantId) {
         setIsLoading(false)
@@ -36,7 +36,7 @@ export default function OrganizationPage() {
     }
 
     fetchTenant()
-  }, [params.tenantId])
+  }, [params.tenant])
 
   if (isLoading) {
     return (
@@ -61,7 +61,7 @@ export default function OrganizationPage() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="org-id">Organization ID</Label>
-            <Input id="org-id" value={params.tenantId as string} disabled />
+            <Input id="org-id" value={params.tenant as string} disabled />
           </div>
           <div className="space-y-2">
             <Label htmlFor="org-name">Organization Name</Label>
