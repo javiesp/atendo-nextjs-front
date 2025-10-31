@@ -29,6 +29,25 @@ class RoleAPI {
   }
 
   /**
+   * Get a specific role by ID
+   */
+  async getRoleById(orgId: string, roleId: string, token: string): Promise<RoleData> {
+    const response = await fetch(`${API_BASE_URL}/roles/${orgId}/${roleId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch role")
+    }
+
+    return response.json()
+  }
+
+  /**
    * Create a new role
    */
   async createRole(token: string, data: CreateRolePayload): Promise<RoleData> {

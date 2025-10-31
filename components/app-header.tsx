@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { AuthManager } from "@/lib/auth"
-import { tenantAPI, type Tenant } from "@/api/tenant"
+import { tenantAPI } from "@/api/tenant"
+import type { TenantData } from "@/types/api"
+import { usePermissions } from "@/contexts/permissions-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +25,9 @@ interface AppHeaderProps {
 export function AppHeader({ onMenuClick }: AppHeaderProps) {
   const params = useParams()
   const router = useRouter()
-  const [tenant, setTenant] = useState<Tenant | null>(null)
+  const [tenant, setTenant] = useState<TenantData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const { canNavigate, permissions } = usePermissions()
 
   useEffect(() => {
     const fetchTenant = async () => {
@@ -55,12 +58,21 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
   }
 
   const handleUserProfile = () => {
+    if (!canNavigate("profile_tab")) {
+      return
+    }
     router.push(`/${params.tenant}/profile`)
   }
 
   const handleOrgProfile = () => {
+    if (!canNavigate("organization_tab")) {
+      return
+    }
     router.push(`/${params.tenant}/organization`)
   }
+
+  const showProfileOption = permissions && canNavigate("profile_tab")
+  const showOrgOption = permissions && canNavigate("organization_tab")
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -73,44 +85,10 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
           <div>
             <h1>Atendo</h1>
           </div>
-          {/* <Link href={`/${params.tenant}`} className="flex items-center gap-2">
-            <Image
-              src="/logos/logo-black.webp"
-              alt="Atendo"
-              width={80}
-              height={27}
-              className="hidden dark:hidden sm:block"
-              priority
-            />
-            <Image
-              src="/logos/logo-white.webp"
-              alt="Atendo"
-              width={80}
-              height={27}
-              className="hidden dark:sm:block"
-              priority
-            />
-            <Image
-              src="/logos/logo-black.webp"
-              alt="Atendo"
-              width={60}
-              height={20}
-              className="dark:hidden sm:hidden"
-              priority
-            />
-            <Image
-              src="/logos/logo-white.webp"
-              alt="Atendo"
-              width={60}
-              height={20}
-              className="hidden dark:block sm:hidden"
-              priority
-            />
-          </Link> */}
           {!isLoading && tenant && (
             <>
               <div className="hidden h-4 w-px bg-border sm:block" />
-              <span className="hidden text-sm text-muted-foreground sm:inline">{tenant.name}</span>
+              <span className="hidden text-sm text-muted-foreground sm:inline">{tenant.tenant_name}</span>
             </>
           )}
         </div>
@@ -130,18 +108,22 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">My Account</p>
-                  <p className="text-xs leading-none text-muted-foreground">{tenant?.name || "Loading..."}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{tenant?.tenant_name || "Loading..."}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleUserProfile}>
-                <User className="mr-2 h-4 w-4" />
-                <span>User Profile</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleOrgProfile}>
-                <Building2 className="mr-2 h-4 w-4" />
-                <span>Organization</span>
-              </DropdownMenuItem>
+              {showProfileOption && (
+                <DropdownMenuItem onClick={handleUserProfile}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>User Profile</span>
+                </DropdownMenuItem>
+              )}
+              {showOrgOption && (
+                <DropdownMenuItem onClick={handleOrgProfile}>
+                  <Building2 className="mr-2 h-4 w-4" />
+                  <span>Organization</span>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />

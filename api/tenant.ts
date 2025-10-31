@@ -8,11 +8,6 @@ const API_BASE_URL: string =
     ? process.env.NEXT_PUBLIC_API_ATENDO
     : "http://localhost:3004"
 
-export interface Tenant {
-  id: string
-  name: string
-}
-
 class TenantAPI {
   /**
    * Get tenant by ID
@@ -33,7 +28,7 @@ class TenantAPI {
   }
 
   async updateSettings(tenantId: string, token: string, data: UpdateSettingsPayload): Promise<TenantData> {
-    console.log('---DEBUG----')
+    console.log("---DEBUG----")
     const response = await fetch(`${API_BASE_URL}/tenants/${tenantId}/settings`, {
       method: "PATCH",
       headers: {
