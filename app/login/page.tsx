@@ -27,15 +27,9 @@ export default function LoginPage() {
     const result = await login({ email, password })
 
     console.log(result.success)
-    // if (result.success && "token" in result && result.token) {
-    //   // Save token in cookie
-    //   document.cookie = `atendo_token=${result.token}; path=/`;
 
-      setIsLoading(false);
+    setIsLoading(false);
 
-    //   // Redirect to home page
-    //   window.location.href = "/";
-    // }
     
     if (!result.success) {
       setError(result.error || "Login failed")

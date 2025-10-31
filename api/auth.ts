@@ -23,6 +23,7 @@ export interface AuthResponse {
   refreshToken: string
   expiresIn: string
   org_id: string
+  uid: string
 }
 
 export interface RegisterResponse {

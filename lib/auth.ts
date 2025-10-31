@@ -4,14 +4,19 @@ const TOKEN_KEY = "atendo_token"
 const REFRESH_TOKEN_KEY = "atendo_refresh_token"
 const TOKEN_EXPIRY_KEY = "atendo_token_expiry"
 const ORG_ID_KEY = "atendo_org_id"
+const USER_ID_KEY = "atendo_user_id"
 
 export class AuthManager {
   /**
    * Save authentication tokens to localStorage
    */
-  static saveTokens({ idToken, refreshToken, expiresIn, org_id }: AuthResponse) {
+  static saveTokens({ idToken, refreshToken, expiresIn, org_id, uid}: AuthResponse) {
+
+    console.log()
+
     localStorage.setItem(TOKEN_KEY, idToken)
     localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
+    localStorage.setItem(USER_ID_KEY, uid)
 
     // Calculate expiry time
     const expiryTime = Date.now() + Number.parseInt(expiresIn, 10) * 1000
@@ -48,6 +53,22 @@ export class AuthManager {
   static getOrgId(): string | null {
     if (typeof window === "undefined") return null
     return localStorage.getItem(ORG_ID_KEY)
+  }
+
+  /**
+   * Get the stored user_id
+   */
+  static getUserId(): string | null {
+    if (typeof window === "undefined") return null
+    return localStorage.getItem(USER_ID_KEY)
+  }
+
+  /**
+   * Set the user_id
+   */
+  static setUserId(userId: string): void {
+    if (typeof window === "undefined") return
+    localStorage.setItem(USER_ID_KEY, userId)
   }
 
   /**
@@ -99,6 +120,7 @@ export class AuthManager {
     localStorage.removeItem(REFRESH_TOKEN_KEY)
     localStorage.removeItem(TOKEN_EXPIRY_KEY)
     localStorage.removeItem(ORG_ID_KEY)
+    localStorage.removeItem(USER_ID_KEY)
 
     document.cookie = "atendo_token=; Path=/; Max-Age=0"
   }

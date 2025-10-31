@@ -31,6 +31,7 @@ export function useAuth() {
   const login = async (data: LoginData) => {
     try {
       const response = await authAPI.login(data)
+
       AuthManager.saveTokens(response)
       setIsAuthenticated(true)
 
