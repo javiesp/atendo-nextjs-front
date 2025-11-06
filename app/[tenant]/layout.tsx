@@ -1,10 +1,12 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AppHeader } from "@/components/app-header"
 import { AppSidebar } from "@/components/app-sidebar"
 import { AuthGuard } from "@/components/auth-guard"
+import { AuthManager } from "@/lib/auth"
+import { usePermissions } from "@/contexts/permissions-context"
 
 export default function TenantLayout({
   children,
@@ -13,6 +15,22 @@ export default function TenantLayout({
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
+  const { permissions, setPermissions, isLoading } = usePermissions()
+  const [hasInitialized, setHasInitialized] = useState(false)
+
+  useEffect(() => {
+    if (!hasInitialized) {
+      console.log("[TenantLayout] Setting up permissions callback")
+      AuthManager.setPermissionsCallback((perms) => {
+        console.log("[TenantLayout] Callback received, setting permissions:", Object.keys(perms))
+        setPermissions(perms)
+      })
+
+      console.log("[TenantLayout] Initializing permissions...")
+      AuthManager.initializePermissions()
+      setHasInitialized(true)
+    }
+  }, [hasInitialized, setPermissions])
 
   return (
     <AuthGuard>

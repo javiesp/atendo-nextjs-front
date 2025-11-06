@@ -1,7 +1,7 @@
 import { authAPI, type AuthResponse } from "@/api/auth"
 import { userAPI } from "@/api/user"
 import { roleAPI } from "@/api/role"
-import { permissionAPI } from "@/api/permissions"
+import { permissionAPI } from "@/api/permission"
 import type { NavigationPermissions } from "@/types/api"
 
 const TOKEN_KEY = "atendo_token"
@@ -14,6 +14,7 @@ let permissionsCallback: ((permissions: NavigationPermissions) => void) | null =
 
 export class AuthManager {
   static setPermissionsCallback(callback: (permissions: NavigationPermissions) => void) {
+    console.log("[AuthManager] Callback registered")
     permissionsCallback = callback
   }
 
@@ -133,6 +134,8 @@ export class AuthManager {
       const orgId = this.getOrgId()
       const userId = this.getUserId()
 
+      console.log("[AuthManager] initializePermissions called - callback registered?", !!permissionsCallback)
+
       if (!token || !orgId || !userId) {
         console.error("[AuthManager] Missing credentials for permission initialization")
         return false
@@ -160,10 +163,18 @@ export class AuthManager {
       const permissions = await Promise.all(permissionPromises)
       console.log("[AuthManager] Loaded", permissions.length, "permission(s)")
 
+      if (permissions.length > 0) {
+        console.log("[AuthManager] First permission structure:", permissions[0])
+      }
+
       const mergedPermissions = this.mergePermissions(permissions.map((p) => p.navigation))
+      console.log("[AuthManager] Merged permissions:", mergedPermissions)
 
       if (permissionsCallback) {
+        console.log("[AuthManager] Calling permissions callback with merged permissions")
         permissionsCallback(mergedPermissions)
+      } else {
+        console.error("[AuthManager] No callback registered! Permissions will not be saved to context")
       }
 
       console.log("[AuthManager] Permissions initialized successfully")

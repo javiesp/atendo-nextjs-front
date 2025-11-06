@@ -30,6 +30,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Atendo",
   description: "Al instante",
+    generator: 'v0.app'
 }
 
 export default function RootLayout({

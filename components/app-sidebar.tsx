@@ -44,7 +44,7 @@ const navigationItems = [
     name: "WhatsApp",
     href: "/whatsapp",
     icon: MessageSquare,
-    permissionTab: "whatsapp" as keyof NavigationPermissions,
+    permissionTab: "whatsapp_tab" as keyof NavigationPermissions,
   },
   { name: "Settings", href: "/settings", icon: Settings, permissionTab: "home_tab" as keyof NavigationPermissions },
 ]
@@ -64,24 +64,24 @@ function SidebarContent({ isExpanded, onToggle }: { isExpanded: boolean; onToggl
   const [visibleNavigation, setVisibleNavigation] = useState(navigationItems)
 
   useEffect(() => {
-    console.log("[v0] Permissions loaded:", permissions)
+    console.log("[SidebarContent] Permissions loaded:", permissions)
 
     if (!permissions) {
-      console.log("[v0] No permissions available, hiding all navigation")
+      console.log("[SidebarContent] No permissions available, hiding all navigation")
       setVisibleNavigation([])
       return
     }
 
-    console.log("[v0] Available permission tabs:", Object.keys(permissions))
+    console.log("[SidebarContent] Available permission tabs:", Object.keys(permissions))
 
     const filtered = navigationItems.filter((item) => {
       const hasAccess = canNavigate(item.permissionTab)
-      console.log(`[v0] Checking ${item.name} (${item.permissionTab}):`, hasAccess)
+      console.log(`[SidebarContent] Checking ${item.name} (${item.permissionTab}):`, hasAccess)
       return hasAccess
     })
 
     console.log(
-      "[v0] Visible navigation items:",
+      "[SidebarContent] Visible navigation items:",
       filtered.map((item) => item.name),
     )
     setVisibleNavigation(filtered)

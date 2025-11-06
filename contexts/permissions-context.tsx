@@ -27,37 +27,50 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const setPermissions = (newPermissions: NavigationPermissions) => {
-    console.log("[v0] Setting permissions:", newPermissions)
+    console.log("[PermissionsContext] Setting permissions with tabs:", Object.keys(newPermissions))
+    console.log("[PermissionsContext] Full permissions object:", newPermissions)
     // Freeze to prevent modifications
     const frozen = Object.freeze(JSON.parse(JSON.stringify(newPermissions)))
     setPermissionsState(frozen as NavigationPermissions)
   }
 
   const clearPermissions = () => {
-    console.log("[v0] Clearing permissions")
+    console.log("[PermissionsContext] Clearing permissions")
     setPermissionsState(null)
   }
 
   const hasPermission = (tab: keyof NavigationPermissions, action: keyof TabPermissions): boolean => {
     if (!permissions) {
-      console.log(`[v0] hasPermission(${String(tab)}, ${String(action)}): No permissions loaded`)
+      console.log(
+        `[PermissionsContext] hasPermission(${String(tab)}, ${String(action)}): No permissions loaded, returning false`,
+      )
       return false
     }
-    if (!permissions[tab]) {
-      console.log(`[v0] hasPermission(${String(tab)}, ${String(action)}): Tab not found in permissions`)
+
+    const tabPermissions = permissions[tab]
+    if (!tabPermissions) {
+      console.log(
+        `[PermissionsContext] hasPermission(${String(tab)}, ${String(action)}): Tab not found in permissions, available tabs:`,
+        Object.keys(permissions),
+      )
       return false
     }
-    if (permissions[tab][action] === undefined || permissions[tab][action] === null) {
-      console.log(`[v0] hasPermission(${String(tab)}, ${String(action)}): Action not found or null`)
+
+    const permission = tabPermissions[action]
+    if (permission === undefined || permission === null) {
+      console.log(`[PermissionsContext] hasPermission(${String(tab)}, ${String(action)}): Action not found or null`)
       return false
     }
-    const result = permissions[tab][action] === true
-    console.log(`[v0] hasPermission(${String(tab)}, ${String(action)}): ${result}`)
+
+    const result = permission === true
+    console.log(`[PermissionsContext] hasPermission(${String(tab)}, ${String(action)}): ${result}`)
     return result
   }
 
   const canNavigate = (tab: keyof NavigationPermissions): boolean => {
-    return hasPermission(tab, "p_read")
+    const result = hasPermission(tab, "p_read")
+    console.log(`[PermissionsContext] canNavigate(${String(tab)}): ${result}`)
+    return result
   }
 
   const canCreate = (tab: keyof NavigationPermissions): boolean => {
